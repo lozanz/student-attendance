@@ -28,9 +28,9 @@ func GetAllUsers(c *gin.Context) {
 
 func RegisterUser(c *gin.Context) {
 	var user structs.Users
-	if err := c.ShouldBindJSON(&user); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
+	err := c.ShouldBindJSON(&user)
+	if err != nil {
+		panic(err)
 	}
 
 	if user.Role != "admin" && user.Role != "siswa" {
@@ -61,15 +61,14 @@ func RegisterUser(c *gin.Context) {
 
 func LoginUser(c *gin.Context) {
 	var loginUser structs.Users
-	if err := c.ShouldBindJSON(&loginUser); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
+	err := c.ShouldBindJSON(&loginUser)
+	if err != nil {
+		panic(err)
 	}
 
 	user, err := repository.LoginUser(database.DbConnection, loginUser)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
+		panic(err)
 	}
 
 	if user.Username == "" || user.Password != loginUser.Password {

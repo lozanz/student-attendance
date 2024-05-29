@@ -41,7 +41,7 @@ func main() {
 	defer DB.Close()
 
 	r := gin.Default()
-	// Router Category
+	// Router User
 	r.GET("/user", controllers.GetAllUsers)
 	r.POST("/register", controllers.RegisterUser)
 	r.POST("/login", controllers.LoginUser)
@@ -55,6 +55,11 @@ func main() {
 	r.POST("/student", middleware.Auth([]string{"admin"}), controllers.InsertStudent)
 	r.PUT("/student/:id", middleware.Auth([]string{"admin"}), controllers.UpdateStudent)
 	r.DELETE("/student/:id", middleware.Auth([]string{"admin"}), controllers.DeleteStudent)
+	// Router attendance
+	r.GET("/attendance", controllers.GetAllAttendance)
+	r.POST("/attendance", controllers.InsertAttendance)
+	r.PUT("/attendance/:id", controllers.UpdateAttendance)
+	r.DELETE("/attendance/:id", controllers.DeleteAttendance)
 
 	r.Run("localhost:8080")
 }
