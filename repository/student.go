@@ -18,7 +18,7 @@ func GetAllStudent(db *sql.DB) (results []structs.Student, err error) {
 	for rows.Next() {
 		var s = structs.Student{}
 
-		err := rows.Scan(&s.ID, &s.Name, &s.JenisKelamin, &s.Alamat, &s.ClassID)
+		err := rows.Scan(&s.ID, &s.UserID, &s.Name, &s.JenisKelamin, &s.Alamat, &s.ClassID)
 		if err != nil {
 			panic(err)
 		}
@@ -30,14 +30,14 @@ func GetAllStudent(db *sql.DB) (results []structs.Student, err error) {
 }
 
 func InsertStudent(db *sql.DB, s structs.Student) (err error) {
-	sql := "INSERT INTO student ( name,jenis_kelamin,alamat,class_id) VALUES ($1, $2, $3, $4)"
-	errs := db.QueryRow(sql, s.Name, s.JenisKelamin, s.Alamat, s.ClassID)
+	sql := "INSERT INTO student ( user_id, name,jenis_kelamin,alamat,class_id) VALUES ($1, $2, $3, $4,$5)"
+	errs := db.QueryRow(sql, s.UserID, s.Name, s.JenisKelamin, s.Alamat, s.ClassID)
 
 	return errs.Err()
 }
 func UpdateStudent(db *sql.DB, s structs.Student) (err error) {
-	sql := "UPDATE student SET name = $1, jenis_kelamin = $2, alamat = $3, class_id = $4 WHERE id = $5"
-	errs := db.QueryRow(sql, s.Name, s.JenisKelamin, s.Alamat, s.ClassID, s.ID)
+	sql := "UPDATE student SET user_id=$1 ,jenis_kelamin = $2, alamat = $3, class_id = $4 WHERE id = $5"
+	errs := db.QueryRow(sql, s.UserID, s.JenisKelamin, s.Alamat, s.ClassID, s.ID)
 
 	return errs.Err()
 }

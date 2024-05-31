@@ -30,27 +30,20 @@ func GetAllStudent(c *gin.Context) {
 func InsertStudent(c *gin.Context) {
 	var student structs.Student
 
-	if err := c.ShouldBindJSON(&student); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	err := c.ShouldBindJSON(&student)
+	if err != nil {
+		panic(err)
+	}
+	user, err := repository.GetUserByID(database.DbConnection, student.UserID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "User ID not found"})
 		return
 	}
 
-	// err1, students := repository.GetAllStudent(database.DbConnection)
-	// if err1 != nil {
-	// 	panic(err1)
-	// }
+	student.Name = user.Username
 
-	// student.ID = 0
-	// for _, c := range students {
-	// 	if c.ID > student.ID {
-	// 		student.ID = c.ID
-	// 	}
-	// }
-	// student.ID++
-
-	err := repository.InsertStudent(database.DbConnection, student)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Class Not Found"})
+	if err := repository.InsertStudent(database.DbConnection, student); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 

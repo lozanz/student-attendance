@@ -3,20 +3,14 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"os"
 	"student-attendance/controllers"
 	"student-attendance/database"
 	"student-attendance/middleware"
 
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
-)
-
-const (
-	host     = "localhost"
-	port     = 5432
-	user     = "postgres"
-	password = "postgres"
-	dbname   = "final"
 )
 
 var (
@@ -25,9 +19,18 @@ var (
 )
 
 func main() {
-
-	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
-		host, port, user, password, dbname)
+	err = godotenv.Load("config/.env")
+	if err != nil {
+		fmt.Println("failed load file environment")
+	} else {
+		fmt.Println("Success read file environment")
+	}
+	psqlInfo := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
+		os.Getenv("PGHOST"),
+		os.Getenv("PGPORT"),
+		os.Getenv("PGUSER"),
+		os.Getenv("PGPASSWORD"),
+		os.Getenv("PGDATABASE"))
 
 	DB, err = sql.Open("postgres", psqlInfo)
 	err = DB.Ping()
@@ -56,10 +59,11 @@ func main() {
 	r.PUT("/student/:id", middleware.Auth([]string{"admin"}), controllers.UpdateStudent)
 	r.DELETE("/student/:id", middleware.Auth([]string{"admin"}), controllers.DeleteStudent)
 	// Router attendance
-	r.GET("/attendance", controllers.GetAllAttendance)
-	r.POST("/attendance", controllers.InsertAttendance)
-	r.PUT("/attendance/:id", controllers.UpdateAttendance)
-	r.DELETE("/attendance/:id", controllers.DeleteAttendance)
+	r.GET("/attendance", middleware.Auth([]string{"admin", "siswa"}), controllers.GetAllAttendance)
+	r.POST("/attendance", middleware.Auth([]string{"admin"}), controllers.InsertAttendance)
+	r.PUT("/attendance/:id", middleware.Auth([]string{"admin"}), controllers.UpdateAttendance)
+	r.DELETE("/attendance/:id", middleware.Auth([]string{"admin"}), controllers.DeleteAttendance)
 
-	r.Run("localhost:8080")
+	r.Run(":" + os.Getenv("PORT"))
+	// r.Run("localhost:8080")
 }
